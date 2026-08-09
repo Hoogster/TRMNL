@@ -1,0 +1,29 @@
+# TRMNL Private Plugin settings - "Wetter Wabern" (SRF Meteo)
+#
+# This file documents the values to paste into TRMNL's private plugin editor
+# (Plugins -> Add New -> Private Plugin). TRMNL has no bulk-import for this yet, so
+# these fields are entered by hand in the UI - see trmnl-plugins/weather/README.md.
+
+strategy: "polling"
+
+# Your deployed Worker URL, see backend/README.md.
+polling_url: "https://trmnl-family-backend.<your-subdomain>.workers.dev/weather.json"
+polling_verb: "GET"
+
+# Required header - TRMNL Private Plugins let you add static polling headers.
+# Value = the TRMNL_API_KEY secret you set on the Worker.
+polling_headers:
+  X-API-Key: "<your TRMNL_API_KEY>"
+
+# The Worker refreshes its cache on its own cron (see backend/wrangler.toml); polling
+# more often than that just re-reads the same cached JSON, so this can stay generous.
+refresh_frequency: 30
+
+layouts:
+  - full
+  - half_horizontal
+  - half_vertical
+  - quadrant
+
+name: "Wetter Wabern"
+description: "Lokale Wettervorhersage fuer Wabern (3084), Bern - Daten von der SRF Meteo API v2"

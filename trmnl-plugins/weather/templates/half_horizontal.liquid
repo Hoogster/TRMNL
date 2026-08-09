@@ -1,0 +1,60 @@
+{% comment %} Wetter Wabern - Half Horizontal layout: current + short hourly strip {% endcomment %}
+
+<div class="layout">
+  {% if has_data %}
+
+  <div class="flex flex--row gap--medium h--full">
+    <div class="flex flex--col flex--center-x flex--center-y" style="flex: 1;">
+      <div class="value value--large md:value--xlarge" data-value-fit="true" data-value-fit-max-height="140">
+        {{ current.symbol }} {{ current.temp_c | default: "-" }}°
+      </div>
+      <div class="label">{{ location_name }}</div>
+      <div class="description" data-clamp="1">{{ current.symbol_text }}</div>
+    </div>
+
+    <div class="divider divider--vertical"></div>
+
+    <div class="flex flex--col gap--xsmall flex--center-y" style="flex: 1;">
+      <div class="flex flex--row gap--small text--center">
+        <div class="item">
+          <div class="content">
+            <span class="value value--small value--tnums">{{ today.high_c | default: "-" }}°</span>
+            <span class="label label--small">Max</span>
+          </div>
+        </div>
+        <div class="item">
+          <div class="content">
+            <span class="value value--small value--tnums">{{ today.low_c | default: "-" }}°</span>
+            <span class="label label--small">Min</span>
+          </div>
+        </div>
+      </div>
+      {% if hourly and hourly.size > 0 %}
+      <div class="grid gap--xsmall text--center" style="grid-template-columns: repeat({{ hourly.size }}, 1fr);">
+        {% for h in hourly limit: 4 %}
+        <div class="item">
+          <div class="content">
+            <span class="value value--xsmall">{{ h.symbol }}</span>
+            <span class="label label--small value--tnums">{{ h.temp_c | default: "-" }}°</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--small h--full">
+    <div class="value value--large md:value--xlarge">🌦️</div>
+    <div class="title title--small md:title--medium text--center">Keine Wetterdaten</div>
+  </div>
+
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title md:title--medium">🌤️ Wetter {{ location_name }}</span>
+  <span class="instance">{{ updated_at | date: "%H:%M" }}</span>
+</div>

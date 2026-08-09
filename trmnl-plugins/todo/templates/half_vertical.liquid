@@ -1,0 +1,30 @@
+{% comment %} Familien To-Do - Half Vertical: flat top-items list, list name as suffix {% endcomment %}
+
+<div class="layout">
+  {% if has_data and total_open > 0 %}
+
+  <div class="flex flex--col gap--small h--full">
+    <ul class="list">
+      {% for it in top_items limit: 7 %}
+      <li class="description" data-clamp="1">☐ {{ it.text }} <span class="label">· {{ it.list }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% elsif has_data %}
+  <div class="flex flex--col flex--center-x flex--center-y gap--small h--full">
+    <div class="value value--medium md:value--large">🎉</div>
+    <div class="title title--small md:title--medium text--center">Alles erledigt!</div>
+  </div>
+  {% else %}
+  <div class="flex flex--col flex--center-x flex--center-y gap--small h--full">
+    <div class="value value--medium md:value--large">📝</div>
+    <div class="title title--small md:title--medium text--center">Keine Aufgaben</div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title md:title--medium">✅ Familien To-Do</span>
+  <span class="instance">{{ total_open | default: 0 }} offen</span>
+</div>

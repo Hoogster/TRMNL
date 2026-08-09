@@ -1,0 +1,93 @@
+{% comment %}
+  Wetter Wabern - Full layout
+  Data contract (see backend/src/lib/forecastMapper.ts):
+  { has_data, stale, location_name, updated_at, current: {temp_c, symbol, symbol_text, wind_kmh, humidity_pct},
+    today: {high_c, low_c, precip_probability_pct, sunrise, sunset}, hourly: [{time, temp_c, symbol}] }
+{% endcomment %}
+
+<div class="layout">
+  {% if has_data %}
+
+  <div class="flex flex--col gap--medium h--full">
+    <div class="flex flex--center-x flex--center-y" style="flex: 1;">
+      <div class="text--center">
+        <div class="value value--xlarge md:value--xxlarge lg:value--xxxlarge" data-value-fit="true" data-value-fit-max-height="200">
+          {{ current.symbol }} {{ current.temp_c | default: "-" }}°
+        </div>
+        <div class="title title--medium md:title--large">
+          {{ location_name }}
+        </div>
+        <div class="description md:label">
+          {{ current.symbol_text }}
+          {% if current.wind_kmh %} · Wind {{ current.wind_kmh }} km/h{% endif %}
+          {% if stale %} · (letzte bekannte Werte){% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="flex flex--row gap--small text--center">
+      <div class="item">
+        <div class="content">
+          <span class="value value--medium value--tnums">{{ today.high_c | default: "-" }}°</span>
+          <span class="label">Max</span>
+        </div>
+      </div>
+      <div class="item">
+        <div class="content">
+          <span class="value value--medium value--tnums">{{ today.low_c | default: "-" }}°</span>
+          <span class="label">Min</span>
+        </div>
+      </div>
+      {% if today.precip_probability_pct %}
+      <div class="item">
+        <div class="content">
+          <span class="value value--medium value--tnums">{{ today.precip_probability_pct }}%</span>
+          <span class="label">Regen</span>
+        </div>
+      </div>
+      {% endif %}
+      {% if today.sunset %}
+      <div class="item">
+        <div class="content">
+          <span class="value value--medium value--tnums">{{ today.sunset }}</span>
+          <span class="label">Sonnenuntergang</span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if hourly and hourly.size > 0 %}
+    <div class="divider"></div>
+    <div class="grid gap--small text--center" style="grid-template-columns: repeat({{ hourly.size }}, 1fr);">
+      {% for h in hourly %}
+      <div class="item">
+        <div class="meta">{{ h.time }}</div>
+        <div class="content">
+          <span class="value value--small">{{ h.symbol }}</span>
+          <span class="label value--tnums">{{ h.temp_c | default: "-" }}°</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% else %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--medium h--full">
+    <div class="value value--large md:value--xlarge text--center">🌦️</div>
+    <div class="title title--medium md:title--large text--center">Keine Wetterdaten</div>
+    <div class="description md:title md:title--small text--center">
+      {{ error | default: "Warte auf den naechsten Abruf, oder /admin/weather/refresh am Backend aufrufen." }}
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title md:title--large">🌤️ Wetter {{ location_name }}</span>
+  <span class="instance">{{ updated_at | date: "%H:%M" }}</span>
+</div>

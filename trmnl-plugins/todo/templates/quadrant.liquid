@@ -1,0 +1,27 @@
+{% comment %} Familien To-Do - Quadrant: just the open count {% endcomment %}
+
+<div class="layout">
+  {% if has_data and total_open > 0 %}
+
+  <div class="flex flex--col flex--center-x flex--center-y h--full gap--xsmall">
+    <div class="value value--large md:value--xlarge value--tnums" data-value-fit="true" data-value-fit-max-height="140">
+      {{ total_open }}
+    </div>
+    <div class="title title--small md:title--medium text--center" data-clamp="1">
+      offene Aufgaben
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--xsmall h--full">
+    <div class="value value--medium">🎉</div>
+    <div class="description text--center">Alles erledigt</div>
+  </div>
+
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title title--small">To-Do</span>
+</div>

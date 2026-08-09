@@ -1,0 +1,27 @@
+{% comment %} Wetter Wabern - Quadrant layout: bare minimum, current temp + symbol {% endcomment %}
+
+<div class="layout">
+  {% if has_data %}
+
+  <div class="flex flex--col flex--center-x flex--center-y h--full gap--xsmall">
+    <div class="value value--large md:value--xlarge value--tnums" data-value-fit="true" data-value-fit-max-height="140">
+      {{ current.symbol }} {{ current.temp_c | default: "-" }}°
+    </div>
+    <div class="title title--small md:title--medium text--center" data-clamp="1">
+      {{ location_name }}
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--xsmall h--full">
+    <div class="value value--small md:value--medium">🌦️</div>
+    <div class="description text--center">Keine Daten</div>
+  </div>
+
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title title--small">Wetter</span>
+</div>

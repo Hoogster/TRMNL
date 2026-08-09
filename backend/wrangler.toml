@@ -1,0 +1,41 @@
+# Cloudflare Worker config for the TRMNL family backend (To-Do + SRF weather cache).
+# See backend/README.md for the full step-by-step deploy guide.
+
+name = "trmnl-family-backend"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Refresh the cached weather forecast on a schedule instead of on every TRMNL poll -
+# see src/index.ts `scheduled()` for why (SRF API OAuth + the 6 calls/day/location cap).
+# Times are UTC. 05:00 / 11:00 / 17:00 / 23:00 UTC ~= 06:00 / 12:00 / 18:00 / 00:00
+# Europe/Zurich in winter (CET, UTC+1) - shift by an hour yourself for summer (CEST) if
+# you care about the exact local refresh times; the cap-guard makes this safe either way.
+[triggers]
+crons = ["0 5,11,17,23 * * *"]
+
+# --- KV namespaces --------------------------------------------------------
+# Create these once with:
+#   npx wrangler kv namespace create TODO_KV
+#   npx wrangler kv namespace create WEATHER_KV
+# then paste the returned `id` values below.
+[[kv_namespaces]]
+binding = "TODO_KV"
+id = "REPLACE_WITH_TODO_KV_ID"
+
+[[kv_namespaces]]
+binding = "WEATHER_KV"
+id = "REPLACE_WITH_WEATHER_KV_ID"
+
+# --- Non-secret config -----------------------------------------------------
+# Approximate coordinates for Wabern (3084), Köniz BE - double-check via
+# https://map.geo.admin.ch if you want more precision, then redeploy.
+[vars]
+WEATHER_LAT = "46.9235"
+WEATHER_LON = "7.4530"
+WEATHER_LOCATION_NAME = "Wabern (BE)"
+WEATHER_MAX_DAILY_CALLS = "6"
+
+# --- Secrets (do NOT put these here - set via `wrangler secret put <NAME>`) ---
+# TRMNL_API_KEY      - shared key gating every endpoint, generate with: openssl rand -hex 24
+# SRF_CLIENT_ID      - from your app at https://developer.srgssr.ch (product: SRF Weather)
+# SRF_CLIENT_SECRET  - ditto

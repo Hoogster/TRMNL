@@ -1,0 +1,54 @@
+{% comment %}
+  Familien To-Do - Full layout
+  Data contract (see backend/src/todo.ts toTrmnlPayload()):
+  { has_data, updated_at, total_open, total_lists, lists: [{name, open_count, items:[{id,text}]}], top_items }
+  Note: this is read-only on the device - check items off at /todo (see settings.yml tap_action_url).
+{% endcomment %}
+
+<div class="layout">
+  {% if has_data and total_open > 0 %}
+
+  <div class="flex flex--col gap--medium h--full">
+    <div class="grid grid--cols-2 gap--medium">
+      {% for list in lists limit: 4 %}
+      <div class="item">
+        <div class="meta">{{ list.name }} ({{ list.open_count }})</div>
+        <div class="content">
+          <ul class="list">
+            {% for it in list.items limit: 6 %}
+            <li class="description" data-clamp="1">☐ {{ it.text }}</li>
+            {% endfor %}
+            {% if list.open_count > 6 %}
+            <li class="label">+{{ list.open_count | minus: 6 }} weitere</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% elsif has_data %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--medium h--full">
+    <div class="value value--large md:value--xlarge text--center">🎉</div>
+    <div class="title title--medium md:title--large text--center">Alles erledigt!</div>
+  </div>
+
+  {% else %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--medium h--full">
+    <div class="value value--large md:value--xlarge text--center">📝</div>
+    <div class="title title--medium md:title--large text--center">Keine Aufgaben</div>
+    <div class="description md:title md:title--small text--center">
+      Aufgaben hinzufuegen unter /todo auf dem Backend.
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title md:title--large">✅ Familien To-Do</span>
+  <span class="instance">{{ total_open | default: 0 }} offen</span>
+</div>

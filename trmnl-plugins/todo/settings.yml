@@ -1,0 +1,26 @@
+# TRMNL Private Plugin settings - "Familien To-Do"
+#
+# This file documents the values to paste into TRMNL's private plugin editor
+# (Plugins -> Add New -> Private Plugin). See trmnl-plugins/todo/README.md.
+
+strategy: "polling"
+
+polling_url: "https://trmnl-family-backend.<your-subdomain>.workers.dev/todo.json"
+polling_verb: "GET"
+
+polling_headers:
+  X-API-Key: "<your TRMNL_API_KEY>"
+
+# The list only changes when someone edits it on /todo, so this can be relatively
+# infrequent - lower it if you want near-instant updates on the display.
+refresh_frequency: 15
+
+layouts:
+  - full
+  - half_horizontal
+  - half_vertical
+  - quadrant
+
+name: "Familien To-Do"
+description: "Eigene To-Do-Liste (FamilyWall bietet keine Task-API) - bearbeitbar unter /todo auf dem Backend"
+tap_action_url: "https://trmnl-family-backend.<your-subdomain>.workers.dev/todo"
