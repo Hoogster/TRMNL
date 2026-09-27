@@ -20,11 +20,11 @@ crons = ["0 5,11,17,23 * * *"]
 # then paste the returned `id` values below.
 [[kv_namespaces]]
 binding = "TODO_KV"
-id = "REPLACE_WITH_TODO_KV_ID"
+id = "6d7b9f199cf04bc7b7aa1cac709df4f5"
 
 [[kv_namespaces]]
 binding = "WEATHER_KV"
-id = "REPLACE_WITH_WEATHER_KV_ID"
+id = "e6b8508f2c5e4e56a5ca2152bbb3256e"
 
 # --- Non-secret config -----------------------------------------------------
 # Approximate coordinates for Wabern (3084), Köniz BE - double-check via
