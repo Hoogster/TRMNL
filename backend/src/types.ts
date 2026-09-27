@@ -31,6 +31,8 @@ export interface TodoItem {
   done: boolean;
   createdAt: string;
   doneAt?: string;
+  assignee?: string;
+  dueDate?: string; // "YYYY-MM-DD", optional deadline
 }
 
 export interface NormalizedHour {
@@ -55,6 +57,9 @@ export interface NormalizedWeather {
   stale: boolean;
   location_name: string;
   updated_at: string;
+  // Pre-formatted "HH:MM" in Europe/Zurich - TRMNL's Liquid `date` filter has no timezone
+  // support and would otherwise render the raw UTC hour from `updated_at`.
+  updated_at_local: string;
   source: string;
   error?: string;
   current?: {

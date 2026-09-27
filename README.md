@@ -25,14 +25,13 @@ two things here don't fit into "poll a URL with static headers":
 
 - **FamilyWall has no task/to-do API** - only the calendar iCal export your existing
   plugin already uses. So the To-Do list is a small self-built alternative instead.
-- **The SRF Weather API v2 needs OAuth2** (client-credentials token exchange) and its free
-  tier is capped at **6 calls/day per location** - TRMNL's polling can't do a token
-  exchange, and polling the raw API directly at TRMNL's usual refresh rates would blow
-  through that cap almost immediately.
+- **The SRF Weather API v2 needs OAuth2** (client-credentials token exchange) - TRMNL's
+  polling can't do a token exchange, so polling the raw API directly isn't an option
+  regardless of any rate limit.
 
 Both are solved by one small Cloudflare Worker (free tier) in `backend/`: it caches the
-weather forecast (refreshed on a cron schedule that respects the daily cap) and stores the
-To-Do list in Cloudflare KV, exposing plain JSON that TRMNL polls normally.
+weather forecast (refreshed hourly by cron) and stores the To-Do list in Cloudflare KV,
+exposing plain JSON that TRMNL polls normally.
 
 ## Setup order
 
@@ -53,9 +52,10 @@ To-Do list in Cloudflare KV, exposing plain JSON that TRMNL polls normally.
 - **Coordinates for Wabern are approximate** (`wrangler.toml`) - refine via
   [map.geo.admin.ch](https://map.geo.admin.ch) if you want.
 - **Daily call cap is a defensive default, not a confirmed quota**: the official spec has
-  no rate-limit info, but the Worker still caps SRF calls/day in code (`tryConsumeBudget`
-  in `backend/src/weather.ts`) as a safety net - it'll silently skip a fetch and keep
-  serving the last known-good forecast instead of ever calling unbounded.
+  no rate-limit info at all. The Worker refreshes hourly (24 calls/day) and still caps
+  itself in code (`tryConsumeBudget` in `backend/src/weather.ts`, default 30/day) as a
+  safety net - it'll silently skip a fetch and keep serving the last known-good forecast
+  instead of ever calling unbounded.
 - Your device (TRMNL OG, 2-bit / grayscale, firmware 1.8.12) renders through TRMNL's
   standard framework, so the Liquid templates here don't do anything display-specific -
   TRMNL handles dithering for the panel's bit depth.

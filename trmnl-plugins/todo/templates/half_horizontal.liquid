@@ -9,7 +9,7 @@
       <div class="label">{{ list.name }} ({{ list.open_count }})</div>
       <ul class="list">
         {% for it in list.items limit: 5 %}
-        <li class="description" data-clamp="1">☐ {{ it.text }}</li>
+        <li class="description" data-clamp="1">☐ {{ it.text }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · {{ it.dueDate | date: "%d.%m." }}{% endif %}</li>
         {% endfor %}
       </ul>
     </div>

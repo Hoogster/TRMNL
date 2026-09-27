@@ -1,7 +1,7 @@
 {% comment %}
   Familien To-Do - Full layout
   Data contract (see backend/src/todo.ts toTrmnlPayload()):
-  { has_data, updated_at, total_open, total_lists, lists: [{name, open_count, items:[{id,text}]}], top_items }
+  { has_data, updated_at, total_open, total_lists, lists: [{name, open_count, items:[{id,text,assignee,dueDate}]}], top_items }
   Note: this is read-only on the device - check items off at /todo (see settings.yml tap_action_url).
 {% endcomment %}
 
@@ -16,7 +16,7 @@
         <div class="content">
           <ul class="list">
             {% for it in list.items limit: 6 %}
-            <li class="description" data-clamp="1">☐ {{ it.text }}</li>
+            <li class="description" data-clamp="1">☐ {{ it.text }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · {{ it.dueDate | date: "%d.%m." }}{% endif %}</li>
             {% endfor %}
             {% if list.open_count > 6 %}
             <li class="label">+{{ list.open_count | minus: 6 }} weitere</li>

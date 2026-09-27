@@ -8,9 +8,8 @@ A small Cloudflare Worker that gives your TRMNL two things it can't get on its o
 - **`/weather.json`** - a cached local forecast for Wabern (3084) from the official
   [SRF Weather API v2](https://developer.srgssr.ch/en/apis/srf-meteoapi-v2). This needs a
   small backend because the API uses OAuth2 (not something TRMNL's polling headers can do)
-  and its free tier is capped at **6 calls/day per location** - the Worker fetches on a
-  cron schedule and caches, so TRMNL can poll as often as it likes without ever risking
-  that cap.
+  - the Worker fetches hourly via cron and caches, so TRMNL can poll as often as it likes
+  without triggering a fresh SRF call itself.
 
 Your existing FamilyWall calendar plugin is untouched - nothing here replaces it.
 
@@ -106,10 +105,11 @@ day, `-1` = clear night); the mapper takes the absolute value so both render the
 ## Architecture notes
 
 - **Rate-limit safety**: every SRF forecast call goes through `tryConsumeBudget()` in
-  `src/weather.ts`, which caps calls per UTC day (`WEATHER_MAX_DAILY_CALLS`, default 6) in
+  `src/weather.ts`, which caps calls per UTC day (`WEATHER_MAX_DAILY_CALLS`, default 30) in
   KV as a defensive default - the official OpenAPI spec has no rate-limit info at all, so
   this isn't a confirmed quota, just a safety net so the Worker never calls SRF unbounded
-  regardless of cron timing or manual `/admin/weather/refresh` calls.
+  regardless of cron timing or manual `/admin/weather/refresh` calls. The cron itself runs
+  hourly (24 calls/day), leaving headroom under the cap for manual refreshes/testing.
 - **OAuth token caching**: `src/lib/srfMeteo.ts` caches the bearer token in KV and only
   re-requests it near expiry (SRG SSR tokens are documented as valid ~7 days).
 - **Geolocation ID caching**: `/forecastpoint/{geolocationId}` only accepts one of SRF's

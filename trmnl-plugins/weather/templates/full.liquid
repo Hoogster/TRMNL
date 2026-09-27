@@ -1,7 +1,7 @@
 {% comment %}
   Wetter Wabern - Full layout
   Data contract (see backend/src/lib/forecastMapper.ts):
-  { has_data, stale, location_name, updated_at, current: {temp_c, symbol, symbol_text, wind_kmh, humidity_pct},
+  { has_data, stale, location_name, updated_at_local, current: {temp_c, symbol, symbol_text, wind_kmh, humidity_pct},
     today: {high_c, low_c, precip_probability_pct, sunrise, sunset}, hourly: [{time, temp_c, symbol}] }
 {% endcomment %}
 
@@ -89,5 +89,5 @@
 
 <div class="title_bar">
   <span class="title md:title--large">🌤️ Wetter {{ location_name }}</span>
-  <span class="instance">{{ updated_at | date: "%H:%M" }}</span>
+  <span class="instance">{{ updated_at_local }}</span>
 </div>

@@ -80,6 +80,7 @@ export function mapForecast(env: Env, raw: RawFetchResult): NormalizedWeather {
       stale: true,
       location_name: env.WEATHER_LOCATION_NAME,
       updated_at: nowIso,
+      updated_at_local: toTimeHHMM(nowIso) ?? "-",
       source: "SRF Meteo API v2",
       error: raw.error ?? raw.skipped,
     };
@@ -95,6 +96,7 @@ export function mapForecast(env: Env, raw: RawFetchResult): NormalizedWeather {
     stale: false,
     location_name: env.WEATHER_LOCATION_NAME,
     updated_at: nowIso,
+    updated_at_local: toTimeHHMM(nowIso) ?? "-",
     source: "SRF Meteo API v2",
     current: currentHour
       ? {

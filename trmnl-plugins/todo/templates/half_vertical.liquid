@@ -6,7 +6,7 @@
   <div class="flex flex--col gap--small h--full">
     <ul class="list">
       {% for it in top_items limit: 7 %}
-      <li class="description" data-clamp="1">☐ {{ it.text }} <span class="label">· {{ it.list }}</span></li>
+      <li class="description" data-clamp="1">☐ {{ it.text }} <span class="label">· {{ it.list }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · {{ it.dueDate | date: "%d.%m." }}{% endif %}</span></li>
       {% endfor %}
     </ul>
   </div>
