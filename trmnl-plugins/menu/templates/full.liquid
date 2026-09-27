@@ -1,0 +1,42 @@
+{% comment %}
+  Menü-Inspiration - Full layout
+  Data contract (see backend/src/menu.ts + lib/seasonalMenu.ts):
+  { has_data, season_label, today: {name, description, prepMinutes, kidsNote}, upcoming: [{day_label, name}] }
+{% endcomment %}
+
+<div class="layout">
+  {% if has_data %}
+
+  <div class="flex flex--col gap--medium h--full">
+    <div class="flex flex--center-x flex--center-y" style="flex: 1;">
+      <div class="text--center">
+        <div class="title title--medium md:title--large">{{ today.name }}</div>
+        <div class="description md:label" data-clamp="2">{{ today.description }}</div>
+        <div class="label label--small">⏱ {{ today.prepMinutes }} Min · {{ today.kidsNote }}</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="flex flex--col gap--xsmall">
+      <div class="label label--small">Auch diese Woche</div>
+      {% for u in upcoming %}
+      <div class="description" data-clamp="1">{{ u.day_label }}: {{ u.name }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--medium h--full">
+    <div class="value value--large md:value--xlarge text--center">🍽️</div>
+    <div class="title title--medium md:title--large text--center">Keine Menü-Idee verfügbar</div>
+  </div>
+
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title md:title--large">🍽️ Menü-Inspiration</span>
+  <span class="instance">{{ season_label }}</span>
+</div>

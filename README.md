@@ -1,21 +1,23 @@
 # Fabian's TRMNL
 
-Setup for a TRMNL OG (2-bit) e-ink dashboard with three plugins:
+Setup for a TRMNL OG (2-bit) e-ink dashboard with four plugins:
 
 | Plugin | Status | Data source |
 |---|---|---|
 | 📅 Familienkalender | bereits umgesetzt (unverändert) | FamilyWall iCal-Feed |
 | ✅ Familien To-Do | neu, hier gebaut | eigenes kleines Backend (FamilyWall hat keine Task-API) |
 | 🌤️ Wetter Wabern | neu, hier gebaut | [SRF Weather API v2](https://developer.srgssr.ch/en/apis/srf-meteoapi-v2) |
+| 🍽️ Menü-Inspiration | neu, hier gebaut | kuratierte, saisonale Rezeptliste im Backend (keine externe API) |
 
 ## Layout
 
 ```
-backend/            Cloudflare Worker: To-Do API + web UI, SRF weather OAuth + cache
+backend/            Cloudflare Worker: To-Do API + web UI, SRF weather OAuth + cache, Menü-Inspiration
 trmnl-plugins/
   calendar/          reference notes only - existing setup, not touched
   todo/              TRMNL private-plugin settings + Liquid templates
   weather/           TRMNL private-plugin settings + Liquid templates
+  menu/              TRMNL private-plugin settings + Liquid templates
 ```
 
 ## Why a backend at all?
@@ -41,7 +43,8 @@ exposing plain JSON that TRMNL polls normally.
 2. **`trmnl-plugins/weather/README.md`** - add the private plugin in the TRMNL dashboard.
 3. **`trmnl-plugins/todo/README.md`** - same, plus bookmark `/todo` on family phones to
    actually manage the list.
-4. Calendar needs nothing - it's already running.
+4. **`trmnl-plugins/menu/README.md`** - same, no extra setup beyond the plugin itself.
+5. Calendar needs nothing - it's already running.
 
 ## Known limitations / things to double check
 

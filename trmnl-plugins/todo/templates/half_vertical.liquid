@@ -7,9 +7,11 @@
     {% for it in top_items limit: 5 %}
     <div class="flex flex--col" style="gap: 0.1rem;">
       <span class="description" data-clamp="1">☐ {{ it.text }}</span>
+      {% if it.assignee or it.dueDate %}
       <span class="label label--small">
-        {{ it.list }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · fällig {{ it.dueDate | date: "%d.%m." }}{% endif %}
+        {% if it.assignee %}{{ it.assignee }}{% endif %}{% if it.assignee and it.dueDate %} · {% endif %}{% if it.dueDate %}fällig {{ it.dueDate | date: "%d.%m." }}{% endif %}
       </span>
+      {% endif %}
     </div>
     {% endfor %}
   </div>

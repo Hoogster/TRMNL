@@ -1,0 +1,38 @@
+{% comment %} Menü-Inspiration - Half Vertical: today's pick on top, upcoming below {% endcomment %}
+
+<div class="layout">
+  {% if has_data %}
+
+  <div class="flex flex--col gap--small h--full">
+    <div class="flex flex--center-x flex--center-y" style="flex: 1;">
+      <div class="richtext richtext--center gap--xsmall">
+        <div class="content content--center gap--xsmall text--center">
+          <div class="title title--medium md:title--large" data-clamp="2">{{ today.name }}</div>
+          <div class="description md:title md:title--small" data-clamp="1">⏱ {{ today.prepMinutes }} Min</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="flex flex--col gap--xsmall">
+      {% for u in upcoming %}
+      <div class="description" data-clamp="1">{{ u.day_label }}: {{ u.name }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="flex flex--col flex--center-x flex--center-y gap--small h--full">
+    <div class="value value--medium md:value--large">🍽️</div>
+    <div class="title title--small md:title--medium text--center">Keine Menü-Idee</div>
+  </div>
+
+  {% endif %}
+</div>
+
+<div class="title_bar">
+  <span class="title md:title--medium">🍽️ Menü-Inspiration</span>
+  <span class="instance">{{ season_label }}</span>
+</div>

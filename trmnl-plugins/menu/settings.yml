@@ -1,0 +1,24 @@
+# TRMNL Private Plugin settings - "Menü-Inspiration"
+#
+# This file documents the values to paste into TRMNL's private plugin editor
+# (Plugins -> Add New -> Private Plugin). See trmnl-plugins/menu/README.md.
+
+strategy: "polling"
+
+polling_url: "https://trmnl-family-backend.<your-subdomain>.workers.dev/menu.json"
+polling_verb: "GET"
+
+polling_headers:
+  X-API-Key: "<your TRMNL_API_KEY>"
+
+# The pick is date-based and only changes once/day - no need to poll often.
+refresh_frequency: 360
+
+layouts:
+  - full
+  - half_horizontal
+  - half_vertical
+  - quadrant
+
+name: "Menü-Inspiration"
+description: "Saisonale, familienfreundliche Rezeptidee des Tages - kuratierte Liste, keine externe API"

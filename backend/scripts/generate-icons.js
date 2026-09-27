@@ -7,6 +7,7 @@ const sharp = require("sharp");
 const ICONS = [
   ["../../trmnl-plugins/weather/icon.svg", "../../trmnl-plugins/weather/icon-512.png"],
   ["../../trmnl-plugins/todo/icon.svg", "../../trmnl-plugins/todo/icon-512.png"],
+  ["../../trmnl-plugins/menu/icon.svg", "../../trmnl-plugins/menu/icon-512.png"],
 ];
 
 async function main() {

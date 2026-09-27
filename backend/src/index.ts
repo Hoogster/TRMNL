@@ -2,6 +2,7 @@ import { Env } from "./types";
 import { html, json, normalizePath } from "./lib/http";
 import { handleTodoRequest } from "./todo";
 import { handleWeatherRequest, refreshWeather } from "./weather";
+import { handleMenuRequest } from "./menu";
 
 // A bare JSON blob at "/" reads as a confusing error to anyone who lands here without the
 // exact "/todo" path typed - link here instead so a mistyped/pasted base URL still gets
@@ -22,6 +23,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
   <h1>🏡 TRMNL Family Backend</h1>
   <p>Das ist nur der Server dahinter - die Familien-To-Do-Liste ist hier:</p>
   <a class="button" href="/todo">Zur To-Do-Liste →</a>
+  <p style="margin-top:2rem;">Wetter (<code>/weather.json</code>) und Menü-Inspiration (<code>/menu.json</code>) sind reine TRMNL-Polling-Endpunkte ohne eigene Seite.</p>
 </body>
 </html>`;
 
@@ -53,6 +55,9 @@ export default {
 
     const weatherResponse = await handleWeatherRequest(request, env, url);
     if (weatherResponse) return weatherResponse;
+
+    const menuResponse = await handleMenuRequest(request, env, url);
+    if (menuResponse) return menuResponse;
 
     return json({ error: "not found" }, { status: 404 });
   },
