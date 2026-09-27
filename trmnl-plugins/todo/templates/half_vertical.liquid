@@ -1,14 +1,17 @@
-{% comment %} Familien To-Do - Half Vertical: flat top-items list, list name as suffix {% endcomment %}
+{% comment %} Familien To-Do - Half Vertical: flat top-items checklist with meta line {% endcomment %}
 
 <div class="layout">
   {% if has_data and total_open > 0 %}
 
   <div class="flex flex--col gap--small h--full">
-    <ul class="list">
-      {% for it in top_items limit: 7 %}
-      <li class="description" data-clamp="1">☐ {{ it.text }} <span class="label">· {{ it.list }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · {{ it.dueDate | date: "%d.%m." }}{% endif %}</span></li>
-      {% endfor %}
-    </ul>
+    {% for it in top_items limit: 5 %}
+    <div class="flex flex--col" style="gap: 0.1rem;">
+      <span class="description" data-clamp="1">☐ {{ it.text }}</span>
+      <span class="label label--small">
+        {{ it.list }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · fällig {{ it.dueDate | date: "%d.%m." }}{% endif %}
+      </span>
+    </div>
+    {% endfor %}
   </div>
 
   {% elsif has_data %}

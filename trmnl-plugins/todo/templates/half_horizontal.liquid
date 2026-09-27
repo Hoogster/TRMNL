@@ -5,13 +5,20 @@
 
   <div class="flex flex--row gap--medium h--full">
     {% for list in lists limit: 2 %}
-    <div class="flex flex--col gap--xsmall" style="flex: 1;">
+    <div class="flex flex--col gap--small" style="flex: 1;">
       <div class="label">{{ list.name }} ({{ list.open_count }})</div>
-      <ul class="list">
-        {% for it in list.items limit: 5 %}
-        <li class="description" data-clamp="1">☐ {{ it.text }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · {{ it.dueDate | date: "%d.%m." }}{% endif %}</li>
+      <div class="flex flex--col gap--xsmall">
+        {% for it in list.items limit: 4 %}
+        <div class="flex flex--col" style="gap: 0.1rem;">
+          <span class="description" data-clamp="1">☐ {{ it.text }}</span>
+          {% if it.assignee or it.dueDate %}
+          <span class="label label--small">
+            {% if it.assignee %}{{ it.assignee }}{% endif %}{% if it.assignee and it.dueDate %} · {% endif %}{% if it.dueDate %}fällig {{ it.dueDate | date: "%d.%m." }}{% endif %}
+          </span>
+          {% endif %}
+        </div>
         {% endfor %}
-      </ul>
+      </div>
     </div>
     {% if forloop.first %}<div class="divider divider--vertical"></div>{% endif %}
     {% endfor %}

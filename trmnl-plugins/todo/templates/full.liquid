@@ -1,31 +1,32 @@
 {% comment %}
   Familien To-Do - Full layout
   Data contract (see backend/src/todo.ts toTrmnlPayload()):
-  { has_data, updated_at, total_open, total_lists, lists: [{name, open_count, items:[{id,text,assignee,dueDate}]}], top_items }
-  Note: this is read-only on the device - check items off at /todo (see settings.yml tap_action_url).
+  { has_data, updated_at, total_open, total_lists, lists, top_items: [{text,list,assignee,dueDate}] }
+  A single clean checklist (not grouped by list) reads far better on e-ink than a cramped
+  multi-column grid - list/assignee/due date show as a small meta line under each item.
+  Read-only on the device - check items off at /todo (see settings.yml tap_action_url).
 {% endcomment %}
 
 <div class="layout">
   {% if has_data and total_open > 0 %}
 
-  <div class="flex flex--col gap--medium h--full">
-    <div class="grid grid--cols-2 gap--medium">
-      {% for list in lists limit: 4 %}
-      <div class="item">
-        <div class="meta">{{ list.name }} ({{ list.open_count }})</div>
-        <div class="content">
-          <ul class="list">
-            {% for it in list.items limit: 6 %}
-            <li class="description" data-clamp="1">☐ {{ it.text }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · {{ it.dueDate | date: "%d.%m." }}{% endif %}</li>
-            {% endfor %}
-            {% if list.open_count > 6 %}
-            <li class="label">+{{ list.open_count | minus: 6 }} weitere</li>
-            {% endif %}
-          </ul>
-        </div>
+  <div class="flex flex--col gap--small h--full">
+    {% for it in top_items limit: 8 %}
+    <div class="flex flex--row gap--small" style="align-items: flex-start;">
+      <span class="title title--medium md:title--large" style="line-height: 1.1;">☐</span>
+      <div class="flex flex--col gap--xsmall" style="flex: 1; min-width: 0;">
+        <span class="title title--small md:title--medium" data-clamp="1">{{ it.text }}</span>
+        <span class="label label--small">
+          {{ it.list }}{% if it.assignee %} · {{ it.assignee }}{% endif %}{% if it.dueDate %} · fällig {{ it.dueDate | date: "%d.%m." }}{% endif %}
+        </span>
       </div>
-      {% endfor %}
     </div>
+    {% unless forloop.last %}<div class="divider"></div>{% endunless %}
+    {% endfor %}
+
+    {% if total_open > 8 %}
+    <div class="label label--small text--center">+{{ total_open | minus: 8 }} weitere</div>
+    {% endif %}
   </div>
 
   {% elsif has_data %}
