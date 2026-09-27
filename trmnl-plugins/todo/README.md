@@ -20,7 +20,8 @@ Deploy `backend/` first (see `backend/README.md`) - you need its URL and your
    on the device opens the editable list on a phone via TRMNL's companion app.
 8. Paste `templates/full.liquid` (and the other layouts if you use mashups) into the
    matching layout editors.
-9. Name it "Familien To-Do" and save. Add it to your playlist.
+9. **Icon**: upload `icon-512.png` (in this folder) as the plugin's icon.
+10. Name it "Familien To-Do" and save. Add it to your playlist.
 
 ## Adding/checking off tasks
 

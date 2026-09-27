@@ -1,11 +1,12 @@
 import { Env } from "./types";
-import { json } from "./lib/http";
+import { json, normalizePath } from "./lib/http";
 import { handleTodoRequest } from "./todo";
 import { handleWeatherRequest, refreshWeather } from "./weather";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    url.pathname = normalizePath(url.pathname);
 
     if (request.method === "OPTIONS") {
       return new Response(null, {

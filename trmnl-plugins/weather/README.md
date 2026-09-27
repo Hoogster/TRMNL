@@ -15,7 +15,8 @@ Deploy `backend/` first (see `backend/README.md`) - you need its URL and your
 7. Paste `templates/full.liquid` into the **Full** layout editor. Repeat for
    `half_horizontal.liquid`, `half_vertical.liquid`, and `quadrant.liquid` if you want this
    plugin available in TRMNL's mashup/split layouts too - otherwise `full` alone is enough.
-8. Name it "Wetter Wabern" and save. Add it to your playlist.
+8. **Icon**: upload `icon-512.png` (in this folder) as the plugin's icon.
+9. Name it "Wetter Wabern" and save. Add it to your playlist.
 
 ## What you'll see
 

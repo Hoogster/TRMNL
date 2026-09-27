@@ -25,6 +25,18 @@ export function unauthorized(message = "Unauthorized"): Response {
 }
 
 /**
+ * Lowercases a path and strips one trailing slash (but keeps "/" as "/"), so a link
+ * mangled by a messaging app's auto-linkifier or a mobile keyboard's autocapitalize still
+ * hits the right route instead of falling through to a bare, unstyled 404 JSON body -
+ * which on a phone just reads as "not found" with no indication of what went wrong.
+ */
+export function normalizePath(pathname: string): string {
+  const lower = pathname.toLowerCase();
+  if (lower.length > 1 && lower.endsWith("/")) return lower.slice(0, -1);
+  return lower;
+}
+
+/**
  * Every API route (TRMNL polling endpoints + the todo write actions) is gated behind
  * one shared secret. Accepts it either as `X-API-Key: <key>` (what TRMNL's polling
  * headers use) or `?key=<key>` (handy for pasting a URL straight into a browser).
