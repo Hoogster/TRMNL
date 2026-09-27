@@ -31,14 +31,10 @@ export default {
   },
 
   /**
-   * Cron entry point - see the `[triggers]` crons in wrangler.toml. By default the
-   * 24-hour endpoint is refreshed 4x/day and the 7-day endpoint once/day, for a total of
-   * 5 SRF API calls/day - safely under the documented 6/day free-tier cap with headroom
-   * for a manual /admin/weather/refresh if you ever need one.
+   * Cron entry point - see the `[triggers]` crons in wrangler.toml. One SRF API call per
+   * tick (the single /forecastpoint call returns days + hours together), 4 ticks/day.
    */
-  async scheduled(controller: ScheduledController, env: Env): Promise<void> {
-    const hourUTC = new Date(controller.scheduledTime).getUTCHours();
-    const includeWeekly = hourUTC === 5; // one weekly-outlook fetch/day, at the 05:00 UTC tick
-    await refreshWeather(env, { includeWeekly });
+  async scheduled(_controller: ScheduledController, env: Env): Promise<void> {
+    await refreshWeather(env);
   },
 };

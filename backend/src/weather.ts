@@ -7,10 +7,10 @@ const LATEST_KEY = "weather:latest";
 const RAW_KEY = "weather:raw";
 
 /**
- * Enforces the SRF Weather API free-tier cap (documented as 6 calls/day/location).
- * Tracked per UTC calendar day in KV; refuses the call once the budget is spent instead
- * of ever risking an overage, regardless of how often refreshWeather() gets invoked
- * (cron misfires, manual /admin/weather/refresh calls, etc).
+ * Caps SRF Weather API calls per UTC calendar day as a defensive default - the official
+ * OpenAPI spec has no rate-limit info at all, so this isn't a confirmed quota, just a
+ * safety net that refuses the call once spent, regardless of how often refreshWeather()
+ * gets invoked (cron misfires, manual /admin/weather/refresh calls, etc).
  */
 async function tryConsumeBudget(env: Env): Promise<boolean> {
   const day = new Date().toISOString().slice(0, 10);
@@ -22,30 +22,18 @@ async function tryConsumeBudget(env: Env): Promise<boolean> {
   return true;
 }
 
-/**
- * Refreshes the cached forecast. `includeWeekly` additionally spends one call on the
- * 7-day endpoint - only do this a couple of times/day (see the cron schedule in
- * wrangler.toml) so the combined total stays under the daily budget.
- */
-export async function refreshWeather(env: Env, opts: { includeWeekly?: boolean } = {}): Promise<void> {
+/** Refreshes the cached forecast with a single SRF API call (one call returns everything). */
+export async function refreshWeather(env: Env): Promise<void> {
   const result: RawFetchResult = {};
 
   if (await tryConsumeBudget(env)) {
     try {
-      result.day = await fetchForecast(env, "24hour");
+      result.data = await fetchForecast(env);
     } catch (e) {
       result.error = String(e instanceof Error ? e.message : e);
     }
   } else {
     result.skipped = "daily_budget_exceeded";
-  }
-
-  if (opts.includeWeekly && !result.error && (await tryConsumeBudget(env))) {
-    try {
-      result.week = await fetchForecast(env, "7day");
-    } catch {
-      // Weekly outlook is best-effort; don't let it blank out the whole display.
-    }
   }
 
   await env.WEATHER_KV.put(RAW_KEY, JSON.stringify(result));
@@ -93,8 +81,7 @@ export async function handleWeatherRequest(request: Request, env: Env, url: URL)
   // POST /admin/weather/refresh - force an immediate refresh (still budget-gated)
   if (pathname === "/admin/weather/refresh" && request.method === "POST") {
     if (!isAuthorized(request, env.TRMNL_API_KEY)) return unauthorized();
-    const includeWeekly = url.searchParams.get("weekly") === "true";
-    await refreshWeather(env, { includeWeekly });
+    await refreshWeather(env);
     const cached = await env.WEATHER_KV.get(LATEST_KEY, "json");
     return json({ refreshed: true, latest: cached });
   }

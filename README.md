@@ -46,17 +46,16 @@ To-Do list in Cloudflare KV, exposing plain JSON that TRMNL polls normally.
 
 ## Known limitations / things to double check
 
-- **Weather field mapping is best-effort.** I don't have SRF developer credentials to
-  test the authenticated v2 API's real response shape, so `forecastMapper.ts` is written
-  defensively against public references to SRF's data model. See
-  `backend/README.md` → "About the SRF field-name mapping" for the 2-minute check to run
-  once you have real data flowing.
+- **Weather field mapping** in `backend/src/lib/forecastMapper.ts` is verified against the
+  official SRF Weather API v2 OpenAPI spec - see `backend/README.md` → "About the SRF
+  field-name mapping" for the one thing the spec doesn't document (exact `symbol_code`
+  meanings).
 - **Coordinates for Wabern are approximate** (`wrangler.toml`) - refine via
   [map.geo.admin.ch](https://map.geo.admin.ch) if you want.
-- **6 calls/day cap**: the Worker enforces this in code (`tryConsumeBudget` in
-  `backend/src/weather.ts`), so it's safe even if you change the cron schedule later -
-  it'll just silently skip a fetch and keep serving the last known-good forecast instead
-  of erroring or overshooting the quota.
+- **Daily call cap is a defensive default, not a confirmed quota**: the official spec has
+  no rate-limit info, but the Worker still caps SRF calls/day in code (`tryConsumeBudget`
+  in `backend/src/weather.ts`) as a safety net - it'll silently skip a fetch and keep
+  serving the last known-good forecast instead of ever calling unbounded.
 - Your device (TRMNL OG, 2-bit / grayscale, firmware 1.8.12) renders through TRMNL's
   standard framework, so the Liquid templates here don't do anything display-specific -
   TRMNL handles dithering for the panel's bit depth.

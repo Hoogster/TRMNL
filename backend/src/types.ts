@@ -18,8 +18,9 @@ export interface Env {
   WEATHER_LON: string;
   WEATHER_LOCATION_NAME: string;
 
-  // Safety cap for SRF API calls/day (free tier is documented as 6 calls/day/location).
-  // Kept as a var (not secret) so it's easy to tweak in wrangler.toml.
+  // Safety cap for SRF API calls/day - a defensive default, not a confirmed quota (the
+  // official OpenAPI spec has no rate-limit info at all). Kept as a var (not secret) so
+  // it's easy to tweak in wrangler.toml.
   WEATHER_MAX_DAILY_CALLS?: string;
 }
 
@@ -73,4 +74,34 @@ export interface NormalizedWeather {
   };
   hourly?: NormalizedHour[];
   daily?: NormalizedDay[];
+}
+
+// --- Raw SRF Weather API v2 response shapes -------------------------------
+// Verified against the official OpenAPI 3 spec for GET /forecastpoint/{geolocationId}.
+
+export interface SrfHourInterval {
+  date_time: string;
+  symbol_code: number;
+  TTT_C: number;
+  TTTFEEL_C: number;
+  FF_KMH: number;
+  RELHUM_PERCENT: number;
+  PROBPCP_PERCENT: number;
+}
+
+export interface SrfDayInterval {
+  date_time: string;
+  symbol_code: number;
+  TX_C: number;
+  TN_C: number;
+  SUNRISE: string;
+  SUNSET: string;
+  PROBPCP_PERCENT: number;
+}
+
+export interface SrfForecastPointWeek {
+  days: SrfDayInterval[];
+  three_hours: SrfHourInterval[];
+  hours: SrfHourInterval[];
+  geolocation: { id: number; lat: number; lon: number; default_name: string };
 }

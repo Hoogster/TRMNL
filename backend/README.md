@@ -84,32 +84,40 @@ Open `https://trmnl-family-backend.<you>.workers.dev/todo` on a phone, enter the
 when prompted, and add your family's first task. Bookmark it / "Add to Home Screen" -
 that's the family's To-Do app now.
 
-## 7. About the SRF field-name mapping (please read once)
+## 7. About the SRF field-name mapping
 
-The official v2 API sits behind a developer account, so `src/lib/forecastMapper.ts` was
-written against public references to SRF's weather data model, not a response I could
-actually call and inspect (no credentials from here). It's defensive - it tries several
-plausible field names for temperature, symbol codes, etc. - but once you have real data
-flowing, it's worth a 2-minute sanity check:
+`src/lib/forecastMapper.ts` and `src/lib/srfMeteo.ts` are written against the official SRF
+Weather API v2 OpenAPI 3 spec (endpoint: `GET /forecastpoint/{geolocationId}`, field names
+like `TTT_C`, `TX_C`, `TN_C`, `symbol_code` etc.), not guessed. If a value ever shows up
+blank/"-" on the device, it's worth a sanity check against the live response:
 
 ```bash
 curl "https://trmnl-family-backend.<you>.workers.dev/debug/weather-raw" \
   -H "X-API-Key: <your TRMNL_API_KEY>"
 ```
 
-Compare the raw JSON against the candidate field names in `forecastMapper.ts` (search for
-`pick(`). If temperatures or symbols show up blank/"-" on the device, that means a field
-name differs from what's guessed there - adjust the relevant `pick([...])` call and
-redeploy. Paste me the raw payload in a follow-up and I'll fix the mapping precisely.
+One thing the spec doesn't document at all: the exact meaning of each numeric
+`symbol_code`. `symbolToEmoji()` in `forecastMapper.ts` uses a coarse, best-effort bucketing
+by numeric range rather than an exact per-code table - tweak it there if an icon looks off
+for a given code you can observe via `/debug/weather-raw`. One thing the live API *did*
+reveal: the sign of `symbol_code` flags day vs. night for the same condition (`1` = sunny
+day, `-1` = clear night); the mapper takes the absolute value so both render the same icon.
 
 ## Architecture notes
 
 - **Rate-limit safety**: every SRF forecast call goes through `tryConsumeBudget()` in
-  `src/weather.ts`, which hard-caps calls per UTC day (`WEATHER_MAX_DAILY_CALLS`, default
-  6) in KV - regardless of cron timing or manual `/admin/weather/refresh` calls, the
-  Worker will never exceed the free-tier quota.
+  `src/weather.ts`, which caps calls per UTC day (`WEATHER_MAX_DAILY_CALLS`, default 6) in
+  KV as a defensive default - the official OpenAPI spec has no rate-limit info at all, so
+  this isn't a confirmed quota, just a safety net so the Worker never calls SRF unbounded
+  regardless of cron timing or manual `/admin/weather/refresh` calls.
 - **OAuth token caching**: `src/lib/srfMeteo.ts` caches the bearer token in KV and only
   re-requests it near expiry (SRG SSR tokens are documented as valid ~7 days).
+- **Geolocation ID caching**: `/forecastpoint/{geolocationId}` only accepts one of SRF's
+  pre-registered location IDs, not arbitrary "lat,lon" - `getGeolocationId()` resolves your
+  configured `WEATHER_LAT`/`WEATHER_LON` to the nearest registered ID once (via a proximity
+  search) and caches it in KV forever. **If you ever change the coordinates in
+  `wrangler.toml`, delete the cached value first** so it re-resolves:
+  `npx wrangler kv key delete --namespace-id <WEATHER_KV id> srf_geolocation_id`.
 - **Stale-over-blank**: if a refresh fails, the previous good forecast keeps being served
   (flagged `stale: true`) instead of the display going blank.
 - **Auth**: every route requires the shared `TRMNL_API_KEY`, sent as `X-API-Key` (TRMNL

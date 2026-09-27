@@ -1,7 +1,7 @@
-import { Env } from "../types";
+import { Env, SrfForecastPointWeek } from "../types";
 
 const TOKEN_URL = "https://api.srgssr.ch/oauth/v1/accesstoken?grant_type=client_credentials";
-const FORECAST_BASE = "https://api.srgssr.ch/forecasts/v1.0/weather";
+const FORECAST_BASE = "https://api.srgssr.ch/srf-meteo/v2";
 
 interface CachedToken {
   access_token: string;
@@ -38,23 +38,45 @@ export async function getAccessToken(env: Env): Promise<string> {
   return token.access_token;
 }
 
-export type ForecastEndpoint = "current" | "nexthour" | "24hour" | "7day";
+/**
+ * Resolves the configured lat/lon to one of SRF's pre-registered geolocation IDs via a
+ * proximity search (GET /geolocations?latitude=..&longitude=.. - matches within 10km).
+ * /forecastpoint/{geolocationId} 404s on an arbitrary "lat,lon" string; it only accepts an
+ * ID that already exists in SRF's location database. Cached in KV since this never changes
+ * for a fixed location.
+ */
+async function getGeolocationId(env: Env): Promise<string> {
+  const cached = await env.WEATHER_KV.get("srf_geolocation_id");
+  if (cached) return cached;
+
+  const token = await getAccessToken(env);
+  const url = `${FORECAST_BASE}/geolocations?latitude=${env.WEATHER_LAT}&longitude=${env.WEATHER_LON}`;
+  const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } });
+  if (!resp.ok) {
+    throw new Error(`SRF geolocation lookup failed: ${resp.status} ${await resp.text()}`);
+  }
+  const results = await resp.json<Array<{ id: string }>>();
+  const id = results[0]?.id;
+  if (!id) {
+    throw new Error(`SRF geolocation lookup returned no results for ${env.WEATHER_LAT},${env.WEATHER_LON}`);
+  }
+  await env.WEATHER_KV.put("srf_geolocation_id", id);
+  return id;
+}
 
 /**
- * Calls one SRF Weather API v2 forecast endpoint for the configured location and returns
- * the raw parsed JSON, untouched. See forecastMapper.ts for turning this into the stable
- * shape the Liquid templates consume - the exact field names below are best-effort
- * (reconstructed from public references, not a live-tested response) and may need small
- * adjustments once you have real credentials; see backend/README.md.
+ * Calls the SRF Weather API v2's single forecast endpoint for the configured location:
+ * GET /forecastpoint/{geolocationId}. One call returns days + three_hours + hours.
  */
-export async function fetchForecast(env: Env, endpoint: ForecastEndpoint): Promise<any> {
+export async function fetchForecast(env: Env): Promise<SrfForecastPointWeek> {
   const token = await getAccessToken(env);
-  const url = `${FORECAST_BASE}/${endpoint}?latitude=${encodeURIComponent(env.WEATHER_LAT)}&longitude=${encodeURIComponent(env.WEATHER_LON)}`;
+  const geolocationId = await getGeolocationId(env);
+  const url = `${FORECAST_BASE}/forecastpoint/${geolocationId}`;
   const resp = await fetch(url, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
   if (!resp.ok) {
-    throw new Error(`SRF forecast request failed (${endpoint}): ${resp.status} ${await resp.text()}`);
+    throw new Error(`SRF forecast request failed: ${resp.status} ${await resp.text()}`);
   }
   return resp.json();
 }
