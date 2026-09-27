@@ -183,7 +183,8 @@ const TODO_PAGE_HTML = `<!doctype html>
     font-size: 0.85rem; background: #fff; color: inherit;
   }
   .empty { color: #71717a; padding: 2rem 0; text-align: center; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 20; padding: 1rem; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); align-items: center; justify-content: center; z-index: 20; padding: 1rem; display: none; }
+  .overlay:not([hidden]) { display: flex; }
   .overlay-card { background: #fff; border-radius: 1rem; padding: 1.5rem; max-width: 22rem; width: 100%; }
   .overlay-card h2 { margin: 0 0 0.5rem; font-size: 1.2rem; }
   .overlay-card p { margin: 0 0 1rem; color: #52525b; font-size: 0.9rem; }
